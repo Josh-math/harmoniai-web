@@ -12,6 +12,7 @@ import AnalysisResult from "./analysis-result";
 
 type AnalyzeSongProps = {
   onBack: () => void;
+  onOpenPerformance: () => void;
 };
 
 const analysisStages = [
@@ -40,6 +41,7 @@ const supportedExtensions = [
 
 export default function AnalyzeSong({
   onBack,
+  onOpenPerformance,
 }: AnalyzeSongProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -235,11 +237,7 @@ export default function AnalyzeSong({
       <AnalysisResult
         fileName={selectedFile.name}
         onAnalyzeAnother={analyzeAnotherSong}
-        onOpenPerformance={() => {
-          alert(
-            "Performance Mode will be connected in the next frontend milestone.",
-          );
-        }}
+        onOpenPerformance={onOpenPerformance}
       />
     );
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import PerformanceMode from "./components/performance-mode";
 import AnalyzeSong from "./components/analyze-song";
 import { useState } from "react";
 
@@ -119,7 +120,19 @@ export default function Home() {
 
         <div className="content">
           {activePage === "Analyze" ? (
-            <AnalyzeSong onBack={() => setActivePage("Dashboard")} />
+            <AnalyzeSong
+              onBack={() => setActivePage("Dashboard")}
+              onOpenPerformance={() =>
+                setActivePage("Performance")
+              }
+            />
+          ) : activePage === "Performance" ? (
+            <PerformanceMode
+              onBack={() => setActivePage("Analyze")}
+              onAnalyzeAnother={() =>
+                setActivePage("Analyze")
+              }
+            />
           ) : (
             <>
           <section className="hero-card">
