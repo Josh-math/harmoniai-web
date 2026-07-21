@@ -1132,3 +1132,108 @@ button:focus-visible {
     min-height: 340px;
   }
 }
+
+.analysis-progress {
+  padding: 18px;
+  display: grid;
+  gap: 17px;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: var(--surface-muted);
+}
+
+.analysis-progress-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.analysis-progress-heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.analysis-progress-heading strong {
+  font-size: 14px;
+}
+
+.analysis-progress-heading small {
+  color: var(--muted);
+}
+
+.analysis-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(79, 111, 82, 0.16);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: analysis-spin 800ms linear infinite;
+}
+
+@keyframes analysis-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.analysis-progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(79, 111, 82, 0.12);
+}
+
+.analysis-progress-track span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--accent-dark),
+    var(--accent)
+  );
+  transition: width 450ms ease;
+}
+
+.analysis-stage-list {
+  display: grid;
+  gap: 9px;
+}
+
+.analysis-stage {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+}
+
+.analysis-stage > span {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.analysis-stage-active {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.analysis-stage-active > span {
+  color: white;
+  background: var(--accent);
+}
+
+.analysis-stage-complete {
+  color: var(--accent);
+}
+
+.analysis-stage-complete > span {
+  color: white;
+  background: var(--accent-dark);
+}

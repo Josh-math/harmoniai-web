@@ -1,69 +1,242 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  DragEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type AnalyzeSongProps = {
   onBack: () => void;
 };
 
-export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
+const analysisStages = [
+  "Preparing audio",
+  "Detecting tempo and beats",
+  "Identifying chords",
+  "Mapping tonal regions",
+  "Finding modulations",
+  "Building performance suggestions",
+  "Finalizing your session",
+];
+
+const supportedAudioTypes = [
+  "audio/mpeg",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/mp4",
+  "audio/x-m4a",
+];
+
+const supportedExtensions = [
+  ".mp3",
+  ".wav",
+  ".m4a",
+];
+
+export default function AnalyzeSong({
+  onBack,
+}: AnalyzeSongProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [instrument, setInstrument] = useState("Keyboard");
-  const [skillLevel, setSkillLevel] = useState("Intermediate");
-  const [style, setStyle] = useState("Gospel");
+  const [selectedFile, setSelectedFile] =
+    useState<File | null>(null);
 
-  function chooseFile(file?: File) {
-    if (!file) {
+  const [audioPreviewUrl, setAudioPreviewUrl] =
+    useState<string | null>(null);
+
+  const [isDragging, setIsDragging] =
+    useState(false);
+
+  const [instrument, setInstrument] =
+    useState("Keyboard");
+
+  const [skillLevel, setSkillLevel] =
+    useState("Intermediate");
+
+  const [style, setStyle] =
+    useState("Gospel");
+
+  const [isAnalyzing, setIsAnalyzing] =
+    useState(false);
+
+  const [analysisStage, setAnalysisStage] =
+    useState(0);
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setAudioPreviewUrl(null);
       return;
     }
 
-    const supportedTypes = [
-      "audio/mpeg",
-      "audio/wav",
-      "audio/x-wav",
-      "audio/mp4",
-      "audio/x-m4a",
-    ];
+    const previewUrl =
+      URL.createObjectURL(selectedFile);
 
-    if (!supportedTypes.includes(file.type)) {
-      alert("Please select an MP3, WAV, or M4A audio file.");
+    setAudioPreviewUrl(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [selectedFile]);
+
+  function chooseFile(file?: File) {
+    if (!file || isAnalyzing) {
+      return;
+    }
+
+    const normalizedFileName =
+      file.name.toLowerCase();
+
+    const hasSupportedType =
+      supportedAudioTypes.includes(file.type);
+
+    const hasSupportedExtension =
+      supportedExtensions.some((extension) =>
+        normalizedFileName.endsWith(extension),
+      );
+
+    if (
+      !hasSupportedType
+      && !hasSupportedExtension
+    ) {
+      alert(
+        "Please select an MP3, WAV, or M4A audio file.",
+      );
+
       return;
     }
 
     setSelectedFile(file);
+    setAnalysisStage(0);
   }
 
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
     chooseFile(event.target.files?.[0]);
   }
 
-  function handleDrop(event: DragEvent<HTMLDivElement>) {
+  function handleDrop(
+    event: DragEvent<HTMLDivElement>,
+  ) {
     event.preventDefault();
     setIsDragging(false);
-    chooseFile(event.dataTransfer.files?.[0]);
+
+    chooseFile(
+      event.dataTransfer.files?.[0],
+    );
+  }
+
+  function handleDragEnter(
+    event: DragEvent<HTMLDivElement>,
+  ) {
+    event.preventDefault();
+
+    if (!isAnalyzing) {
+      setIsDragging(true);
+    }
+  }
+
+  function handleDragLeave(
+    event: DragEvent<HTMLDivElement>,
+  ) {
+    event.preventDefault();
+
+    if (
+      event.currentTarget.contains(
+        event.relatedTarget as Node | null,
+      )
+    ) {
+      return;
+    }
+
+    setIsDragging(false);
+  }
+
+  function removeSelectedFile() {
+    if (isAnalyzing) {
+      return;
+    }
+
+    setSelectedFile(null);
+    setAnalysisStage(0);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   }
 
   function formatFileSize(bytes: number) {
-    const megabytes = bytes / (1024 * 1024);
+    const megabytes =
+      bytes / (1024 * 1024);
+
     return `${megabytes.toFixed(1)} MB`;
+  }
+
+  async function wait(
+    milliseconds: number,
+  ) {
+    await new Promise<void>((resolve) => {
+      window.setTimeout(
+        resolve,
+        milliseconds,
+      );
+    });
+  }
+
+  async function startAnalysis() {
+    if (
+      !selectedFile
+      || isAnalyzing
+    ) {
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisStage(0);
+
+    for (
+      let index = 0;
+      index < analysisStages.length;
+      index += 1
+    ) {
+      setAnalysisStage(index);
+
+      await wait(750);
+    }
+
+    setIsAnalyzing(false);
+
+    alert(
+      "The processing experience is working. Next, we will connect it to the Harmivo Python backend.",
+    );
   }
 
   return (
     <div className="analyze-page">
-      <button type="button" className="back-button" onClick={onBack}>
+      <button
+        type="button"
+        className="back-button"
+        onClick={onBack}
+        disabled={isAnalyzing}
+      >
         ← Back to dashboard
       </button>
 
       <section className="analyze-heading">
-        <p className="card-kicker">SONG INTELLIGENCE</p>
+        <p className="card-kicker">
+          SONG INTELLIGENCE
+        </p>
+
         <h2>Analyze your music</h2>
+
         <p>
-          Upload a song and let Harmivo uncover its chords, tonal
-          journey, modulations, performance paths, and enhancement
-          opportunities.
+          Upload a song and let Harmivo
+          uncover its chords, tonal journey,
+          modulations, performance paths,
+          and enhancement opportunities.
         </p>
       </section>
 
@@ -75,9 +248,11 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
                 ? "upload-zone upload-zone-dragging"
                 : "upload-zone"
             }
-            onDragEnter={() => setIsDragging(true)}
-            onDragLeave={() => setIsDragging(false)}
-            onDragOver={(event) => event.preventDefault()}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={(event) => {
+              event.preventDefault();
+            }}
             onDrop={handleDrop}
           >
             <input
@@ -85,41 +260,53 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
               type="file"
               accept=".mp3,.wav,.m4a,audio/*"
               hidden
+              disabled={isAnalyzing}
               onChange={handleInputChange}
             />
 
             {!selectedFile ? (
               <>
-                <span className="upload-icon">♫</span>
+                <span className="upload-icon">
+                  ♫
+                </span>
+
                 <h3>Drop your song here</h3>
+
                 <p>MP3, WAV, or M4A</p>
 
                 <button
                   type="button"
                   className="primary-button"
-                  onClick={() => inputRef.current?.click()}
+                  disabled={isAnalyzing}
+                  onClick={() => {
+                    inputRef.current?.click();
+                  }}
                 >
                   Choose audio file
                 </button>
               </>
             ) : (
               <div className="selected-file">
-                <span className="selected-file-icon">♪</span>
+                <span className="selected-file-icon">
+                  ♪
+                </span>
 
                 <div>
-                  <strong>{selectedFile.name}</strong>
-                  <small>{formatFileSize(selectedFile.size)}</small>
+                  <strong>
+                    {selectedFile.name}
+                  </strong>
+
+                  <small>
+                    {formatFileSize(
+                      selectedFile.size,
+                    )}
+                  </small>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedFile(null);
-
-                    if (inputRef.current) {
-                      inputRef.current.value = "";
-                    }
-                  }}
+                  disabled={isAnalyzing}
+                  onClick={removeSelectedFile}
                 >
                   Remove
                 </button>
@@ -127,30 +314,46 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
             )}
           </div>
 
-          {selectedFile && (
-            <audio
-              className="audio-preview"
-              controls
-              src={URL.createObjectURL(selectedFile)}
-            />
-          )}
+          {selectedFile
+            && audioPreviewUrl && (
+              <audio
+                className="audio-preview"
+                controls
+                src={audioPreviewUrl}
+              >
+                Your browser does not support
+                audio playback.
+              </audio>
+            )}
         </section>
 
         <aside className="analysis-settings">
           <div>
-            <p className="card-kicker">YOUR PROFILE</p>
+            <p className="card-kicker">
+              YOUR PROFILE
+            </p>
+
             <h3>Shape your results</h3>
+
             <p>
-              Harmivo uses these choices to personalize its musical
-              suggestions, not the objective song analysis.
+              Harmivo uses these choices to
+              personalize its musical
+              suggestions, not the objective
+              song analysis.
             </p>
           </div>
 
           <label>
             Instrument
+
             <select
               value={instrument}
-              onChange={(event) => setInstrument(event.target.value)}
+              disabled={isAnalyzing}
+              onChange={(event) => {
+                setInstrument(
+                  event.target.value,
+                );
+              }}
             >
               <option>Keyboard</option>
               <option>Guitar</option>
@@ -159,9 +362,15 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
 
           <label>
             Skill level
+
             <select
               value={skillLevel}
-              onChange={(event) => setSkillLevel(event.target.value)}
+              disabled={isAnalyzing}
+              onChange={(event) => {
+                setSkillLevel(
+                  event.target.value,
+                );
+              }}
             >
               <option>Beginner</option>
               <option>Intermediate</option>
@@ -172,9 +381,15 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
 
           <label>
             Musical style
+
             <select
               value={style}
-              onChange={(event) => setStyle(event.target.value)}
+              disabled={isAnalyzing}
+              onChange={(event) => {
+                setStyle(
+                  event.target.value,
+                );
+              }}
             >
               <option>Original</option>
               <option>Gospel</option>
@@ -185,22 +400,106 @@ export default function AnalyzeSong({ onBack }: AnalyzeSongProps) {
             </select>
           </label>
 
+          {isAnalyzing && (
+            <section className="analysis-progress">
+              <div className="analysis-progress-heading">
+                <span className="analysis-spinner" />
+
+                <div>
+                  <strong>
+                    Harmivo is listening
+                  </strong>
+
+                  <small>
+                    {
+                      analysisStages[
+                        analysisStage
+                      ]
+                    }
+                  </small>
+                </div>
+              </div>
+
+              <div className="analysis-progress-track">
+                <span
+                  style={{
+                    width: `${
+                      (
+                        (
+                          analysisStage + 1
+                        )
+                        / analysisStages.length
+                      )
+                      * 100
+                    }%`,
+                  }}
+                />
+              </div>
+
+              <div className="analysis-stage-list">
+                {analysisStages.map(
+                  (stage, index) => {
+                    const isComplete =
+                      index
+                      < analysisStage;
+
+                    const isActive =
+                      index
+                      === analysisStage;
+
+                    let className =
+                      "analysis-stage";
+
+                    if (isComplete) {
+                      className +=
+                        " analysis-stage-complete";
+                    } else if (isActive) {
+                      className +=
+                        " analysis-stage-active";
+                    }
+
+                    return (
+                      <div
+                        key={stage}
+                        className={
+                          className
+                        }
+                      >
+                        <span>
+                          {isComplete
+                            ? "✓"
+                            : index + 1}
+                        </span>
+
+                        <small>
+                          {stage}
+                        </small>
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            </section>
+          )}
+
           <button
             type="button"
             className="primary-button analyze-submit"
-            disabled={!selectedFile}
-            onClick={() => {
-              alert(
-                "The interface is ready. We will connect it to the Harmivo backend next.",
-              );
-            }}
+            disabled={
+              !selectedFile
+              || isAnalyzing
+            }
+            onClick={startAnalysis}
           >
-            Analyze song
+            {isAnalyzing
+              ? "Analyzing..."
+              : "Analyze song"}
           </button>
 
           {!selectedFile && (
             <small className="upload-hint">
-              Select an audio file to continue.
+              Select an audio file to
+              continue.
             </small>
           )}
         </aside>
