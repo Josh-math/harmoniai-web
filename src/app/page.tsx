@@ -1,5 +1,6 @@
 "use client";
 
+import AnalyzeSong from "./components/analyze-song";
 import { useState } from "react";
 
 const navigationItems = [
@@ -117,6 +118,10 @@ export default function Home() {
         </header>
 
         <div className="content">
+          {activePage === "Analyze" ? (
+            <AnalyzeSong onBack={() => setActivePage("Dashboard")} />
+          ) : (
+            <>
           <section className="hero-card">
             <div className="hero-copy">
               <span className="status-pill">
@@ -133,7 +138,7 @@ export default function Home() {
               <p>
                 Analyze a song, follow live musical guidance and receive
                 personalized harmonic ideas shaped around your instrument,
-                skill and musical style..
+                skill and musical style.
               </p>
 
               <div className="hero-actions">
@@ -197,7 +202,7 @@ export default function Home() {
                 <p className="card-kicker">START HERE</p>
                 <h3>Analyze a song</h3>
                 <p>
-                  Upload audio and let HarmoniAI build its chord,
+                  Upload audio and let Harmivo build its chord,
                   phrase and tonal journey.
                 </p>
               </div>
@@ -307,6 +312,8 @@ export default function Home() {
               </button>
             </article>
           </section>
+            </>
+          )}
         </div>
       </section>
     </main>
