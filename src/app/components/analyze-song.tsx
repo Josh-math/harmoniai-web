@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 
+import AnalysisResult from "./analysis-result";
+
 type AnalyzeSongProps = {
   onBack: () => void;
 };
@@ -65,6 +67,9 @@ export default function AnalyzeSong({
   const [analysisStage, setAnalysisStage] =
     useState(0);
 
+  const [isComplete, setIsComplete] =
+    useState(false);
+
   useEffect(() => {
     if (!selectedFile) {
       setAudioPreviewUrl(null);
@@ -110,6 +115,7 @@ export default function AnalyzeSong({
 
     setSelectedFile(file);
     setAnalysisStage(0);
+    setIsComplete(false);
   }
 
   function handleInputChange(
@@ -162,6 +168,18 @@ export default function AnalyzeSong({
 
     setSelectedFile(null);
     setAnalysisStage(0);
+    setIsComplete(false);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
+  function analyzeAnotherSong() {
+    setIsComplete(false);
+    setIsAnalyzing(false);
+    setSelectedFile(null);
+    setAnalysisStage(0);
 
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -194,6 +212,7 @@ export default function AnalyzeSong({
       return;
     }
 
+    setIsComplete(false);
     setIsAnalyzing(true);
     setAnalysisStage(0);
 
@@ -208,9 +227,20 @@ export default function AnalyzeSong({
     }
 
     setIsAnalyzing(false);
+    setIsComplete(true);
+  }
 
-    alert(
-      "The processing experience is working. Next, we will connect it to the Harmivo Python backend.",
+  if (isComplete && selectedFile) {
+    return (
+      <AnalysisResult
+        fileName={selectedFile.name}
+        onAnalyzeAnother={analyzeAnotherSong}
+        onOpenPerformance={() => {
+          alert(
+            "Performance Mode will be connected in the next frontend milestone.",
+          );
+        }}
+      />
     );
   }
 
@@ -439,21 +469,21 @@ export default function AnalyzeSong({
               <div className="analysis-stage-list">
                 {analysisStages.map(
                   (stage, index) => {
-                    const isComplete =
+                    const isStageComplete =
                       index
                       < analysisStage;
 
-                    const isActive =
+                    const isStageActive =
                       index
                       === analysisStage;
 
                     let className =
                       "analysis-stage";
 
-                    if (isComplete) {
+                    if (isStageComplete) {
                       className +=
                         " analysis-stage-complete";
-                    } else if (isActive) {
+                    } else if (isStageActive) {
                       className +=
                         " analysis-stage-active";
                     }
@@ -461,12 +491,10 @@ export default function AnalyzeSong({
                     return (
                       <div
                         key={stage}
-                        className={
-                          className
-                        }
+                        className={className}
                       >
                         <span>
-                          {isComplete
+                          {isStageComplete
                             ? "✓"
                             : index + 1}
                         </span>
