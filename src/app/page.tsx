@@ -6,11 +6,13 @@ import {
 
 import AnalyzeSong from "./components/analyze-song";
 import Dashboard from "./components/dashboard";
-import PerformanceMode from "./components/performance-mode";
-import TechniqueLab from "./components/technique-lab";
-import ReharmonizationStudio from "./components/reharmonization-studio";
+import DailyDiscoveries from "./components/daily-discoveries";
 import Library from "./components/library";
 import MusicianProfile from "./components/musician-profile";
+import PerformanceMode from "./components/performance-mode";
+import ReharmonizationStudio from "./components/reharmonization-studio";
+import TechniqueLab from "./components/technique-lab";
+
 import {
   useHarmivo,
 } from "./context/harmivo-context";
@@ -51,6 +53,11 @@ const navigationItems: NavigationItem[] = [
     icon: "♬",
   },
   {
+    screen: "discoveries",
+    label: "Discoveries",
+    icon: "✧",
+  },
+  {
     screen: "reharmonization",
     label: "Reharmonize",
     icon: "✦",
@@ -86,20 +93,20 @@ export default function Home() {
 
   function goTo(
     screen: AppScreen,
-    ) {
-      if (screen === activeScreen) {
-        return;
-      }
-
-      setNavigationHistory(
-        (currentHistory) => [
-          ...currentHistory,
-          activeScreen,
-        ],
-      );
-
-      setActiveScreen(screen);
+  ) {
+    if (screen === activeScreen) {
+      return;
     }
+
+    setNavigationHistory(
+      (currentHistory) => [
+        ...currentHistory,
+        activeScreen,
+      ],
+    );
+
+    setActiveScreen(screen);
+  }
 
   function goBack() {
     setNavigationHistory(
@@ -161,8 +168,7 @@ export default function Home() {
     }
 
     if (
-      activeScreen
-      === "technique-lab"
+      activeScreen === "technique-lab"
     ) {
       return (
         <TechniqueLab
@@ -177,12 +183,30 @@ export default function Home() {
     }
 
     if (
+      activeScreen === "discoveries"
+    ) {
+      return (
+        <DailyDiscoveries
+          onBack={goBack}
+          onOpenTechniqueLab={() => {
+            goTo("technique-lab");
+          }}
+          onOpenPerformance={() => {
+            goTo("performance");
+          }}
+        />
+      );
+    }
+
+    if (
       activeScreen === "library"
     ) {
       return (
-      <Library goTo={goTo} />
-    );
-  }
+        <Library
+          goTo={goTo}
+        />
+      );
+    }
 
     if (
       activeScreen === "profile"
@@ -195,8 +219,7 @@ export default function Home() {
     }
 
     if (
-      activeScreen
-      === "reharmonization"
+      activeScreen === "reharmonization"
     ) {
       return (
         <ReharmonizationStudio
@@ -211,7 +234,9 @@ export default function Home() {
     }
 
     return (
-      <Dashboard goTo={goTo} />
+      <Dashboard
+        goTo={goTo}
+      />
     );
   }
 
@@ -242,15 +267,12 @@ export default function Home() {
 
         <nav
           className="navigation"
-          aria-label={
-            "Primary navigation"
-          }
+          aria-label="Primary navigation"
         >
           {navigationItems.map(
             (item) => {
               const isActive =
-                activeScreen
-                === item.screen;
+                activeScreen === item.screen;
 
               return (
                 <button
@@ -258,23 +280,14 @@ export default function Home() {
                   type="button"
                   className={
                     isActive
-                      ? (
-                        "navigation-item "
-                        + "navigation-item-active"
-                      )
+                      ? "navigation-item navigation-item-active"
                       : "navigation-item"
                   }
                   onClick={() => {
-                    goTo(
-                      item.screen,
-                    );
+                    goTo(item.screen);
                   }}
                 >
-                  <span
-                    className={
-                      "navigation-icon"
-                    }
-                  >
+                  <span className="navigation-icon">
                     {item.icon}
                   </span>
 
@@ -316,16 +329,11 @@ export default function Home() {
             <span
               className={
                 isPremium
-                  ? (
-                    "switch-track "
-                    + "switch-track-active"
-                  )
+                  ? "switch-track switch-track-active"
                   : "switch-track"
               }
             >
-              <span
-                className="switch-thumb"
-              />
+              <span className="switch-thumb" />
             </span>
           </button>
 
@@ -342,6 +350,7 @@ export default function Home() {
 
             <span>
               <strong>Joseph</strong>
+
               <small>
                 {musicianProfile.instrument}
               </small>
@@ -357,15 +366,13 @@ export default function Home() {
       <section className="workspace">
         <header className="topbar">
           <div className="topbar-title-area">
-            {(
-              activeScreen !== "dashboard"
-              || navigationHistory.length > 0
-            ) && (
+            {(activeScreen !== "dashboard"
+              || navigationHistory.length > 0) && (
               <button
                 type="button"
                 className="global-back-button"
                 onClick={goBack}
-                aria-label="Go back to previous page"
+                aria-label="Go back"
                 title="Go back"
               >
                 ←
@@ -386,9 +393,7 @@ export default function Home() {
           <div className="topbar-actions">
             <button
               type="button"
-              className={
-                "notification-button"
-              }
+              className="notification-button"
             >
               <span>●</span>
 
