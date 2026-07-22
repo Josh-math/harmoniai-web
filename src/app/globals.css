@@ -2666,3 +2666,309 @@ button:focus-visible {
     display: grid;
   }
 }
+
+.technique-lab-page {
+  animation: page-enter 300ms ease;
+}
+
+.technique-lab-toolbar,
+.technique-lab-heading,
+.technique-focus-heading,
+.technique-action-grid,
+.technique-discovery-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.technique-lab-heading {
+  margin: 34px 0;
+  gap: 24px;
+}
+
+.technique-lab-heading h2 {
+  margin: 9px 0 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 5vw, 66px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+.technique-lab-heading p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.technique-lab-count {
+  min-width: 110px;
+  padding: 18px;
+  display: grid;
+  justify-items: center;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.technique-lab-count strong {
+  font-family: Georgia, serif;
+  font-size: 35px;
+  font-weight: 500;
+}
+
+.technique-lab-count span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.technique-lab-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(270px, 0.7fr)
+    minmax(0, 1.3fr);
+  gap: 20px;
+}
+
+.technique-list-panel,
+.technique-focus-card,
+.technique-empty-state,
+.technique-discovery-panel {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.technique-list-panel {
+  padding: 24px;
+}
+
+.technique-list {
+  margin-top: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.technique-list-item {
+  width: 100%;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text);
+  background: var(--surface-solid);
+  cursor: pointer;
+  text-align: left;
+}
+
+.technique-list-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  font-size: 19px;
+}
+
+.technique-list-item > div {
+  display: grid;
+  gap: 4px;
+}
+
+.technique-list-item small {
+  color: var(--muted);
+}
+
+.technique-list-item-active {
+  color: white;
+  background: var(--accent-dark);
+}
+
+.technique-list-item-active small {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.technique-focus-card {
+  padding: 27px;
+}
+
+.technique-focus-heading h3,
+.technique-discovery-panel h3 {
+  margin: 8px 0 0;
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.technique-meta-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.technique-meta-grid article {
+  min-height: 105px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--surface-muted);
+}
+
+.technique-meta-grid small {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.technique-meta-grid strong {
+  margin-top: 9px;
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.technique-practice-section {
+  margin-top: 28px;
+}
+
+.technique-practice-path {
+  margin-top: 14px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 18px;
+  background: var(--surface-muted);
+}
+
+.technique-practice-path div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.technique-practice-path strong {
+  font-family: Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.technique-practice-path span {
+  color: var(--muted);
+}
+
+.technique-action-grid {
+  margin-top: 26px;
+  justify-content: flex-start;
+  gap: 11px;
+}
+
+.technique-empty-state {
+  min-height: 330px;
+  padding: 30px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.technique-empty-state > span {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  font-size: 24px;
+}
+
+.technique-empty-state h3 {
+  margin: 18px 0 8px;
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.technique-empty-state p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.technique-discovery-panel {
+  margin-top: 20px;
+  padding: 24px 27px;
+  gap: 25px;
+}
+
+.technique-discovery-panel > div:first-child {
+  max-width: 390px;
+}
+
+.technique-discovery-panel p:last-child {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.technique-discovery-path {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  background: var(--surface-muted);
+}
+
+.technique-discovery-path strong {
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .technique-lab-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .technique-discovery-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 680px) {
+  .technique-lab-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .technique-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .technique-practice-path {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .technique-action-grid {
+    display: grid;
+  }
+
+  .technique-action-grid button {
+    width: 100%;
+  }
+}

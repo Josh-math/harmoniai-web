@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import TechniqueLab from "./components/technique-lab";
 import AnalyzeSong from "./components/analyze-song";
 import PerformanceMode from "./components/performance-mode";
 
@@ -243,21 +243,25 @@ export default function Home() {
                 );
               }}
             />
-          ) : activePage
-            === "Performance" ? (
-              <PerformanceMode
-                onBack={() => {
-                  setActivePage(
-                    "Analyze",
-                  );
-                }}
-                onAnalyzeAnother={() => {
-                  setActivePage(
-                    "Analyze",
-                  );
-                }}
-              />
-            ) : (
+          ) : activePage === "Performance" ? (
+            <PerformanceMode
+              onBack={() => {
+                setActivePage("Analyze");
+              }}
+              onAnalyzeAnother={() => {
+                setActivePage("Analyze");
+              }}
+            />
+          ) : activePage === "Technique Lab" ? (
+            <TechniqueLab
+              onBack={() => {
+                setActivePage("Dashboard");
+              }}
+              onOpenPerformance={() => {
+                setActivePage("Performance");
+              }}
+            />
+          ) : (
               <>
                 <section
                   className="hero-card"
