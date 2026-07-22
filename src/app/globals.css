@@ -2181,3 +2181,24 @@ button:focus-visible {
     overflow-x: auto;
   }
 }
+
+.performance-path-summary {
+  margin-top: 22px;
+  padding: 16px;
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-muted);
+}
+
+.performance-path-summary strong {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.performance-path-summary small {
+  color: var(--muted);
+  line-height: 1.5;
+}

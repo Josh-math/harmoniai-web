@@ -6,161 +6,13 @@ import {
   useState,
 } from "react";
 
+import { mockSongIntelligence } from "../data/mock-song-intelligence";
+
 type InteractiveAnalysisProps = {
   fileName: string;
   onBack: () => void;
   onOpenPerformance: () => void;
 };
-
-type ChordEvent = {
-  start: number;
-  end: number;
-  chord: string;
-  roman: string;
-  key: string;
-  status: "confirmed" | "estimated";
-};
-
-type KeyRegion = {
-  start: number;
-  end: number;
-  key: string;
-};
-
-type PhraseRegion = {
-  start: number;
-  end: number;
-  label: string;
-};
-
-const duration = 90;
-
-const chordEvents: ChordEvent[] = [
-  {
-    start: 0,
-    end: 8,
-    chord: "F",
-    roman: "I",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 8,
-    end: 16,
-    chord: "Bb",
-    roman: "IV",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 16,
-    end: 24,
-    chord: "C",
-    roman: "V",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 24,
-    end: 32,
-    chord: "Dm",
-    roman: "vi",
-    key: "F Major",
-    status: "estimated",
-  },
-  {
-    start: 32,
-    end: 40,
-    chord: "Gm",
-    roman: "ii",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 40,
-    end: 48,
-    chord: "C",
-    roman: "V",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 48,
-    end: 58,
-    chord: "F",
-    roman: "I",
-    key: "F Major",
-    status: "confirmed",
-  },
-  {
-    start: 58,
-    end: 64,
-    chord: "D",
-    roman: "V",
-    key: "G Major",
-    status: "estimated",
-  },
-  {
-    start: 64,
-    end: 73,
-    chord: "G",
-    roman: "I",
-    key: "G Major",
-    status: "confirmed",
-  },
-  {
-    start: 73,
-    end: 81,
-    chord: "C",
-    roman: "IV",
-    key: "G Major",
-    status: "confirmed",
-  },
-  {
-    start: 81,
-    end: 90,
-    chord: "D",
-    roman: "V",
-    key: "G Major",
-    status: "confirmed",
-  },
-];
-
-const keyRegions: KeyRegion[] = [
-  {
-    start: 0,
-    end: 62.5,
-    key: "F Major",
-  },
-  {
-    start: 62.5,
-    end: 90,
-    key: "G Major",
-  },
-];
-
-const phraseRegions: PhraseRegion[] = [
-  {
-    start: 0,
-    end: 24,
-    label: "Intro",
-  },
-  {
-    start: 24,
-    end: 48,
-    label: "Verse",
-  },
-  {
-    start: 48,
-    end: 64,
-    label: "Build",
-  },
-  {
-    start: 64,
-    end: 90,
-    label: "Chorus",
-  },
-];
 
 function formatTime(seconds: number) {
   const safeSeconds = Math.max(
@@ -185,6 +37,23 @@ export default function InteractiveAnalysis({
   onBack,
   onOpenPerformance,
 }: InteractiveAnalysisProps) {
+  const song = mockSongIntelligence;
+
+  const duration =
+    song.metadata.duration;
+
+  const chordEvents =
+    song.chords;
+
+  const keyRegions =
+    song.keyRegions;
+
+  const phraseRegions =
+    song.phrases;
+
+  const modulation =
+    song.modulations[0] ?? null;
+
   const [position, setPosition] =
     useState(0);
 
@@ -204,7 +73,10 @@ export default function InteractiveAnalysis({
         chordEvents.length - 1
       ]
     );
-  }, [position]);
+  }, [
+    chordEvents,
+    position,
+  ]);
 
   const currentPhrase = useMemo(() => {
     return (
@@ -217,7 +89,10 @@ export default function InteractiveAnalysis({
         phraseRegions.length - 1
       ]
     );
-  }, [position]);
+  }, [
+    phraseRegions,
+    position,
+  ]);
 
   const currentRegion = useMemo(() => {
     return (
@@ -230,7 +105,10 @@ export default function InteractiveAnalysis({
         keyRegions.length - 1
       ]
     );
-  }, [position]);
+  }, [
+    keyRegions,
+    position,
+  ]);
 
   function handleSeek(
     event: ChangeEvent<HTMLInputElement>,
@@ -304,7 +182,9 @@ export default function InteractiveAnalysis({
 
       <section className="analysis-overview-grid">
         <article className="analysis-overview-card analysis-current-card">
-          <small>AT {formatTime(position)}</small>
+          <small>
+            AT {formatTime(position)}
+          </small>
 
           <strong>
             {displayMode === "chords"
@@ -316,7 +196,10 @@ export default function InteractiveAnalysis({
             {currentChord.status
               === "confirmed"
               ? "Confirmed"
-              : "Estimated"}
+              : currentChord.status
+                === "estimated"
+                ? "Estimated"
+                : "Withheld"}
           </span>
         </article>
 
@@ -327,7 +210,9 @@ export default function InteractiveAnalysis({
             {currentRegion.key}
           </strong>
 
-          <span>Regional tonal centre</span>
+          <span>
+            Regional tonal centre
+          </span>
         </article>
 
         <article className="analysis-overview-card">
@@ -351,9 +236,29 @@ export default function InteractiveAnalysis({
         <article className="analysis-overview-card">
           <small>MODULATION</small>
 
-          <strong>1:03</strong>
+          {modulation ? (
+            <>
+              <strong>
+                {formatTime(
+                  modulation.time,
+                )}
+              </strong>
 
-          <span>F Major → G Major</span>
+              <span>
+                {modulation.fromKey}
+                {" → "}
+                {modulation.toKey}
+              </span>
+            </>
+          ) : (
+            <>
+              <strong>None</strong>
+
+              <span>
+                No confirmed modulation
+              </span>
+            </>
+          )}
         </article>
       </section>
 
@@ -386,61 +291,80 @@ export default function InteractiveAnalysis({
         />
 
         <div className="key-region-track">
-          {keyRegions.map((region) => (
-            <button
-              key={`${region.start}-${region.key}`}
-              type="button"
-              className={
-                currentRegion.key
-                  === region.key
-                  ? "key-region key-region-active"
-                  : "key-region"
-              }
-              style={{
-                width: `${
-                  (
-                    (
-                      region.end
-                      - region.start
-                    )
-                    / duration
-                  )
-                  * 100
-                }%`,
-              }}
-              onClick={() => {
-                setPosition(region.start);
-              }}
-            >
-              <strong>{region.key}</strong>
+          {keyRegions.map((region) => {
+            const isActive =
+              currentRegion.id
+              === region.id;
 
-              <small>
-                {formatTime(region.start)}
-                {" – "}
-                {formatTime(region.end)}
-              </small>
-            </button>
-          ))}
+            return (
+              <button
+                key={region.id}
+                type="button"
+                className={
+                  isActive
+                    ? "key-region key-region-active"
+                    : "key-region"
+                }
+                style={{
+                  width: `${
+                    (
+                      (
+                        region.end
+                        - region.start
+                      )
+                      / duration
+                    )
+                    * 100
+                  }%`,
+                }}
+                onClick={() => {
+                  setPosition(
+                    region.start,
+                  );
+                }}
+              >
+                <strong>
+                  {region.key}
+                </strong>
+
+                <small>
+                  {formatTime(
+                    region.start,
+                  )}
+                  {" – "}
+                  {formatTime(
+                    region.end,
+                  )}
+                </small>
+              </button>
+            );
+          })}
         </div>
 
         <div className="chord-event-track">
           {chordEvents.map((event) => {
             const isActive =
-              currentChord.start
-              === event.start;
+              currentChord.id
+              === event.id;
+
+            let className =
+              "analysis-chord-event";
+
+            if (isActive) {
+              className +=
+                " analysis-chord-event-active";
+            } else if (
+              event.status === "estimated"
+            ) {
+              className +=
+                " analysis-chord-event-estimated";
+            }
 
             return (
               <button
-                key={`${event.start}-${event.chord}`}
+                key={event.id}
                 type="button"
-                className={
-                  isActive
-                    ? "analysis-chord-event analysis-chord-event-active"
-                    : event.status
-                        === "estimated"
-                      ? "analysis-chord-event analysis-chord-event-estimated"
-                      : "analysis-chord-event"
-                }
+                className={className}
                 style={{
                   width: `${
                     (
@@ -454,7 +378,9 @@ export default function InteractiveAnalysis({
                   }%`,
                 }}
                 onClick={() => {
-                  setPosition(event.start);
+                  setPosition(
+                    event.start,
+                  );
                 }}
               >
                 <strong>
@@ -464,7 +390,9 @@ export default function InteractiveAnalysis({
                 </strong>
 
                 <small>
-                  {formatTime(event.start)}
+                  {formatTime(
+                    event.start,
+                  )}
                 </small>
               </button>
             );
@@ -472,35 +400,42 @@ export default function InteractiveAnalysis({
         </div>
 
         <div className="phrase-region-track">
-          {phraseRegions.map((phrase) => (
-            <button
-              key={`${phrase.start}-${phrase.label}`}
-              type="button"
-              className={
-                currentPhrase.label
-                  === phrase.label
-                  ? "phrase-region phrase-region-active"
-                  : "phrase-region"
-              }
-              style={{
-                width: `${
-                  (
+          {phraseRegions.map((phrase) => {
+            const isActive =
+              currentPhrase.id
+              === phrase.id;
+
+            return (
+              <button
+                key={phrase.id}
+                type="button"
+                className={
+                  isActive
+                    ? "phrase-region phrase-region-active"
+                    : "phrase-region"
+                }
+                style={{
+                  width: `${
                     (
-                      phrase.end
-                      - phrase.start
+                      (
+                        phrase.end
+                        - phrase.start
+                      )
+                      / duration
                     )
-                    / duration
-                  )
-                  * 100
-                }%`,
-              }}
-              onClick={() => {
-                setPosition(phrase.start);
-              }}
-            >
-              {phrase.label}
-            </button>
-          ))}
+                    * 100
+                  }%`,
+                }}
+                onClick={() => {
+                  setPosition(
+                    phrase.start,
+                  );
+                }}
+              >
+                {phrase.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -510,41 +445,58 @@ export default function InteractiveAnalysis({
             TONAL JOURNEY
           </p>
 
-          <h3>Two key regions</h3>
+          <h3>
+            {keyRegions.length}
+            {" "}
+            {keyRegions.length === 1
+              ? "key region"
+              : "key regions"}
+          </h3>
 
           <div className="tonal-journey-list">
             {keyRegions.map(
-              (region, index) => (
-                <div
-                  key={region.key}
-                  className={
-                    currentRegion.key
-                      === region.key
-                      ? "tonal-region-item tonal-region-item-active"
-                      : "tonal-region-item"
-                  }
-                >
-                  <span>
-                    {index + 1}
-                  </span>
+              (region, index) => {
+                const isActive =
+                  currentRegion.id
+                  === region.id;
 
-                  <div>
-                    <strong>
-                      {region.key}
-                    </strong>
+                return (
+                  <div
+                    key={region.id}
+                    className={
+                      isActive
+                        ? "tonal-region-item tonal-region-item-active"
+                        : "tonal-region-item"
+                    }
+                  >
+                    <span>
+                      {index + 1}
+                    </span>
 
-                    <small>
-                      {formatTime(
-                        region.start,
-                      )}
-                      {" – "}
-                      {formatTime(
-                        region.end,
-                      )}
-                    </small>
+                    <div>
+                      <strong>
+                        {region.key}
+                      </strong>
+
+                      <small>
+                        {formatTime(
+                          region.start,
+                        )}
+                        {" – "}
+                        {formatTime(
+                          region.end,
+                        )}
+                        {" • "}
+                        {Math.round(
+                          region.confidence
+                          * 100,
+                        )}
+                        % confidence
+                      </small>
+                    </div>
                   </div>
-                </div>
-              ),
+                );
+              },
             )}
           </div>
         </article>
@@ -563,6 +515,7 @@ export default function InteractiveAnalysis({
           <dl className="current-moment-details">
             <div>
               <dt>Roman numeral</dt>
+
               <dd>
                 {currentChord.roman}
               </dd>
@@ -570,6 +523,7 @@ export default function InteractiveAnalysis({
 
             <div>
               <dt>Section</dt>
+
               <dd>
                 {currentPhrase.label}
               </dd>
@@ -577,11 +531,37 @@ export default function InteractiveAnalysis({
 
             <div>
               <dt>Status</dt>
+
               <dd>
                 {currentChord.status
                   === "confirmed"
                   ? "Confirmed"
-                  : "Estimated"}
+                  : currentChord.status
+                    === "estimated"
+                    ? "Estimated"
+                    : "Withheld"}
+              </dd>
+            </div>
+
+            <div>
+              <dt>Confidence</dt>
+
+              <dd>
+                {Math.round(
+                  currentChord.confidence
+                  * 100,
+                )}
+                %
+              </dd>
+            </div>
+
+            <div>
+              <dt>Musical role</dt>
+
+              <dd>
+                {currentChord.isPassingChord
+                  ? "Passing chord"
+                  : "Structural chord"}
               </dd>
             </div>
           </dl>

@@ -1,116 +1,18 @@
 "use client";
 
 import {
+  ChangeEvent,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
+import { mockSongIntelligence } from "../data/mock-song-intelligence";
+
 type PerformanceModeProps = {
   onBack: () => void;
   onAnalyzeAnother: () => void;
 };
-
-type TimelineEvent = {
-  start: number;
-  end: number;
-  original: string;
-  suggestion: string | null;
-  suggestionRole:
-    | "current"
-    | "passing"
-    | "target"
-    | null;
-  key: string;
-  nextChord: string | null;
-  modulation?: {
-    fromKey: string;
-    toKey: string;
-    time: number;
-  };
-};
-
-const duration = 48;
-
-const timeline: TimelineEvent[] = [
-  {
-    start: 0,
-    end: 6,
-    original: "F",
-    suggestion: "Fmaj9",
-    suggestionRole: "current",
-    key: "F Major",
-    nextChord: "Gm9",
-  },
-  {
-    start: 6,
-    end: 12,
-    original: "Gm",
-    suggestion: "Gm9",
-    suggestionRole: "passing",
-    key: "F Major",
-    nextChord: "C13",
-  },
-  {
-    start: 12,
-    end: 18,
-    original: "C",
-    suggestion: "C13",
-    suggestionRole: "passing",
-    key: "F Major",
-    nextChord: "Fmaj9",
-  },
-  {
-    start: 18,
-    end: 24,
-    original: "F",
-    suggestion: "Fmaj9",
-    suggestionRole: "target",
-    key: "F Major",
-    nextChord: "G",
-  },
-  {
-    start: 24,
-    end: 30,
-    original: "F",
-    suggestion: null,
-    suggestionRole: null,
-    key: "F Major",
-    nextChord: "G",
-    modulation: {
-      fromKey: "F Major",
-      toKey: "G Major",
-      time: 30,
-    },
-  },
-  {
-    start: 30,
-    end: 36,
-    original: "G",
-    suggestion: "Gmaj9",
-    suggestionRole: "current",
-    key: "G Major",
-    nextChord: "Am9",
-  },
-  {
-    start: 36,
-    end: 42,
-    original: "Am",
-    suggestion: "Am9",
-    suggestionRole: "passing",
-    key: "G Major",
-    nextChord: "D13",
-  },
-  {
-    start: 42,
-    end: 48,
-    original: "D",
-    suggestion: "D13",
-    suggestionRole: "passing",
-    key: "G Major",
-    nextChord: "Gmaj9",
-  },
-];
 
 function formatTime(seconds: number) {
   const safeSeconds = Math.max(
@@ -134,6 +36,17 @@ export default function PerformanceMode({
   onBack,
   onAnalyzeAnother,
 }: PerformanceModeProps) {
+  const song = mockSongIntelligence;
+
+  const duration =
+    song.metadata.duration;
+
+  const chordEvents =
+    song.chords;
+
+  const performancePath =
+    song.performancePaths[0] ?? null;
+
   const [position, setPosition] =
     useState(0);
 
@@ -145,69 +58,231 @@ export default function PerformanceMode({
       return;
     }
 
-    const interval = window.setInterval(
-      () => {
+    const interval =
+      window.setInterval(() => {
         setPosition((current) => {
           const nextPosition =
             current + 0.2;
 
-          if (nextPosition >= duration) {
+          if (
+            nextPosition >= duration
+          ) {
             setIsPlaying(false);
             return duration;
           }
 
           return nextPosition;
         });
-      },
-      200,
-    );
+      }, 200);
 
     return () => {
       window.clearInterval(interval);
     };
-  }, [isPlaying]);
+  }, [
+    duration,
+    isPlaying,
+  ]);
 
-  const currentIndex = useMemo(() => {
-    const index = timeline.findIndex(
-      (event) =>
-        position >= event.start
-        && position < event.end,
+  const currentChordIndex =
+    useMemo(() => {
+      const index =
+        chordEvents.findIndex(
+          (event) =>
+            position >= event.start
+            && position < event.end,
+        );
+
+      if (index >= 0) {
+        return index;
+      }
+
+      return chordEvents.length - 1;
+    }, [
+      chordEvents,
+      position,
+    ]);
+
+  const currentChord =
+    chordEvents[currentChordIndex];
+
+  const nextChord =
+    chordEvents[
+      currentChordIndex + 1
+    ] ?? null;
+
+  const currentRegion =
+    useMemo(() => {
+      return (
+        song.keyRegions.find(
+          (region) =>
+            position >= region.start
+            && position < region.end,
+        )
+        ?? song.keyRegions[
+          song.keyRegions.length - 1
+        ]
+      );
+    }, [
+      position,
+      song.keyRegions,
+    ]);
+
+  const currentPhrase =
+    useMemo(() => {
+      return (
+        song.phrases.find(
+          (phrase) =>
+            position >= phrase.start
+            && position < phrase.end,
+        )
+        ?? song.phrases[
+          song.phrases.length - 1
+        ]
+      );
+    }, [
+      position,
+      song.phrases,
+    ]);
+
+  const currentPerformanceStep =
+    useMemo(() => {
+      if (!performancePath) {
+        return null;
+      }
+
+      return (
+        performancePath.steps.find(
+          (step) =>
+            position >= step.start
+            && position < step.end,
+        )
+        ?? null
+      );
+    }, [
+      performancePath,
+      position,
+    ]);
+
+  const nextPerformanceStep =
+    useMemo(() => {
+      if (!performancePath) {
+        return null;
+      }
+
+      return (
+        performancePath.steps.find(
+          (step) =>
+            step.start > position,
+        )
+        ?? null
+      );
+    }, [
+      performancePath,
+      position,
+    ]);
+
+  const nextModulation =
+    useMemo(() => {
+      return (
+        song.modulations.find(
+          (modulation) =>
+            modulation.time
+            > position,
+        )
+        ?? null
+      );
+    }, [
+      position,
+      song.modulations,
+    ]);
+
+  const displayedChord =
+    currentPerformanceStep?.chord
+    ?? currentChord.chord;
+
+  const displayedRole =
+    currentPerformanceStep?.role
+    ?? (
+      currentChord.isPassingChord
+        ? "passing"
+        : "current"
     );
 
-    if (index >= 0) {
-      return index;
-    }
+  const upcomingChord =
+    nextPerformanceStep?.chord
+    ?? nextChord?.chord
+    ?? null;
 
-    return timeline.length - 1;
-  }, [position]);
-
-  const currentEvent =
-    timeline[currentIndex];
-
-  const nextEvent =
-    timeline[currentIndex + 1] ?? null;
-
-  const progress =
-    (position / duration) * 100;
+  const nextChangeTime =
+    nextPerformanceStep?.start
+    ?? nextChord?.start
+    ?? duration;
 
   const secondsUntilNext =
-    nextEvent
-      ? Math.max(
-          0,
-          nextEvent.start - position,
-        )
-      : 0;
-
-  const modulation =
-    currentEvent.modulation;
+    Math.max(
+      0,
+      nextChangeTime - position,
+    );
 
   const secondsUntilModulation =
-    modulation
+    nextModulation
       ? Math.max(
           0,
-          modulation.time - position,
+          nextModulation.time
+          - position,
         )
       : null;
+
+  const progress =
+    duration > 0
+      ? (
+        position / duration
+      ) * 100
+      : 0;
+
+  const upcomingJourney =
+    useMemo(() => {
+      if (
+        performancePath
+        && performancePath.steps.length
+      ) {
+        return performancePath.steps
+          .filter(
+            (step) =>
+              step.end > position,
+          )
+          .slice(0, 4)
+          .map((step) => ({
+            id: step.id,
+            start: step.start,
+            chord: step.chord,
+            role: step.role,
+            confidence:
+              step.confidence,
+          }));
+      }
+
+      return chordEvents
+        .filter(
+          (event) =>
+            event.end > position,
+        )
+        .slice(0, 4)
+        .map((event) => ({
+          id: event.id,
+          start: event.start,
+          chord: event.chord,
+          role: event.isPassingChord
+            ? "passing"
+            : "current",
+          confidence:
+            event.confidence,
+        }));
+    }, [
+      chordEvents,
+      performancePath,
+      position,
+    ]);
 
   function togglePlayback() {
     if (position >= duration) {
@@ -216,7 +291,9 @@ export default function PerformanceMode({
       return;
     }
 
-    setIsPlaying((current) => !current);
+    setIsPlaying(
+      (current) => !current,
+    );
   }
 
   function restart() {
@@ -225,11 +302,41 @@ export default function PerformanceMode({
   }
 
   function seekTo(
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ) {
     setPosition(
       Number(event.target.value),
     );
+  }
+
+  function getRoleLabel(
+    role:
+      | "current"
+      | "passing"
+      | "target"
+      | "substitution"
+      | "colour"
+      | null,
+  ) {
+    if (role === "passing") {
+      return "Passing chord";
+    }
+
+    if (role === "target") {
+      return "Target harmony";
+    }
+
+    if (role === "substitution") {
+      return "Substitution";
+    }
+
+    if (role === "colour") {
+      return "Colour harmony";
+    }
+
+    return currentPerformanceStep
+      ? "Suggested harmony"
+      : "Original harmony";
   }
 
   return (
@@ -258,12 +365,15 @@ export default function PerformanceMode({
             LIVE PERFORMANCE
           </p>
 
-          <h2>Play with Harmivo</h2>
+          <h2>
+            Play with Harmivo
+          </h2>
 
           <p>
-            Follow one clear musical path
-            while Harmivo prepares you for
-            each upcoming change.
+            Follow one clear musical
+            path while Harmivo prepares
+            you for each upcoming
+            change.
           </p>
         </div>
 
@@ -271,7 +381,10 @@ export default function PerformanceMode({
           <span
             className={
               isPlaying
-                ? "performance-live-dot performance-live-dot-active"
+                ? (
+                  "performance-live-dot "
+                  + "performance-live-dot-active"
+                )
                 : "performance-live-dot"
             }
           />
@@ -288,14 +401,30 @@ export default function PerformanceMode({
         <section className="performance-main-card">
           <div className="performance-key-row">
             <div>
-              <small>CURRENT KEY</small>
+              <small>
+                CURRENT KEY
+              </small>
+
               <strong>
-                {currentEvent.key}
+                {currentRegion.key}
               </strong>
             </div>
 
             <div>
-              <small>PLAYBACK</small>
+              <small>
+                SONG SECTION
+              </small>
+
+              <strong>
+                {currentPhrase.label}
+              </strong>
+            </div>
+
+            <div>
+              <small>
+                PLAYBACK
+              </small>
+
               <strong>
                 {formatTime(position)}
               </strong>
@@ -306,28 +435,24 @@ export default function PerformanceMode({
             <p>PLAY NOW</p>
 
             <strong>
-              {currentEvent.suggestion
-                ?? currentEvent.original}
+              {displayedChord}
             </strong>
 
             <span>
-              {currentEvent.suggestionRole
-                === "passing"
-                ? "Passing chord"
-                : currentEvent.suggestionRole
-                    === "target"
-                  ? "Target harmony"
-                  : currentEvent.suggestion
-                    ? "Suggested harmony"
-                    : "Original harmony"}
+              {getRoleLabel(
+                displayedRole,
+              )}
             </span>
           </div>
 
           <div className="performance-path">
             <div>
-              <small>ORIGINAL</small>
+              <small>
+                ORIGINAL
+              </small>
+
               <strong>
-                {currentEvent.original}
+                {currentChord.chord}
               </strong>
             </div>
 
@@ -336,26 +461,33 @@ export default function PerformanceMode({
             </span>
 
             <div>
-              <small>NEXT</small>
+              <small>
+                NEXT
+              </small>
+
               <strong>
-                {nextEvent?.suggestion
-                  ?? currentEvent.nextChord
+                {upcomingChord
                   ?? "End"}
               </strong>
             </div>
           </div>
 
-          {nextEvent && (
+          {upcomingChord && (
             <div className="performance-countdown-card">
-              <span>Prepare next change</span>
+              <span>
+                Prepare next change
+              </span>
 
               <strong>
-                {secondsUntilNext.toFixed(1)}s
+                {secondsUntilNext.toFixed(
+                  1,
+                )}
+                s
               </strong>
             </div>
           )}
 
-          {modulation && (
+          {nextModulation && (
             <div className="modulation-warning-card">
               <span className="modulation-icon">
                 ↗
@@ -367,9 +499,9 @@ export default function PerformanceMode({
                 </small>
 
                 <strong>
-                  {modulation.fromKey}
+                  {nextModulation.fromKey}
                   {" → "}
-                  {modulation.toKey}
+                  {nextModulation.toKey}
                 </strong>
               </div>
 
@@ -389,53 +521,90 @@ export default function PerformanceMode({
               UPCOMING JOURNEY
             </p>
 
-            <h3>Next movements</h3>
+            <h3>
+              Next movements
+            </h3>
           </div>
 
           <div className="performance-queue">
-            {timeline
-              .slice(
-                currentIndex,
-                currentIndex + 4,
-              )
-              .map((event, index) => (
-                <article
-                  key={`${event.start}-${event.original}`}
-                  className={
-                    index === 0
-                      ? "queue-item queue-item-active"
-                      : "queue-item"
-                  }
-                >
-                  <span>
-                    {index === 0
-                      ? "NOW"
-                      : `+${Math.max(
-                          0,
-                          event.start
-                          - position,
-                        ).toFixed(1)}s`}
-                  </span>
+            {upcomingJourney.map(
+              (event, index) => {
+                const isNow =
+                  position
+                  >= event.start;
 
-                  <div>
-                    <strong>
-                      {event.suggestion
-                        ?? event.original}
-                    </strong>
+                return (
+                  <article
+                    key={event.id}
+                    className={
+                      index === 0
+                        ? (
+                          "queue-item "
+                          + "queue-item-active"
+                        )
+                        : "queue-item"
+                    }
+                  >
+                    <span>
+                      {isNow
+                        ? "NOW"
+                        : `+${Math.max(
+                            0,
+                            event.start
+                            - position,
+                          ).toFixed(1)}s`}
+                    </span>
 
-                    <small>
-                      {event.suggestionRole
-                        === "passing"
-                        ? "Passing"
-                        : event.suggestionRole
-                            === "target"
-                          ? "Target"
-                          : "Current"}
-                    </small>
-                  </div>
-                </article>
-              ))}
+                    <div>
+                      <strong>
+                        {event.chord}
+                      </strong>
+
+                      <small>
+                        {event.role
+                          === "passing"
+                          ? "Passing"
+                          : event.role
+                              === "target"
+                            ? "Target"
+                            : event.role
+                                === "substitution"
+                              ? "Substitution"
+                              : event.role
+                                  === "colour"
+                                ? "Colour"
+                                : "Current"}
+                      </small>
+                    </div>
+                  </article>
+                );
+              },
+            )}
           </div>
+
+          {performancePath && (
+            <div className="performance-path-summary">
+              <p className="card-kicker">
+                SELECTED PATH
+              </p>
+
+              <strong>
+                {performancePath.name}
+              </strong>
+
+              <small>
+                {performancePath.style}
+                {" • "}
+                {performancePath.difficulty}
+                {" • "}
+                {Math.round(
+                  performancePath.confidence
+                  * 100,
+                )}
+                % match
+              </small>
+            </div>
+          )}
         </aside>
       </div>
 
@@ -447,6 +616,7 @@ export default function PerformanceMode({
             onClick={restart}
           >
             ↺
+
             <span className="sr-only">
               Restart
             </span>
@@ -457,7 +627,9 @@ export default function PerformanceMode({
             className="player-main-button"
             onClick={togglePlayback}
           >
-            {isPlaying ? "❚❚" : "▶"}
+            {isPlaying
+              ? "❚❚"
+              : "▶"}
           </button>
 
           <div className="player-time">
@@ -479,7 +651,9 @@ export default function PerformanceMode({
           step="0.1"
           value={position}
           onChange={seekTo}
-          aria-label="Playback position"
+          aria-label={
+            "Playback position"
+          }
         />
 
         <div className="performance-progress-track">
@@ -491,42 +665,55 @@ export default function PerformanceMode({
         </div>
 
         <div className="performance-timeline">
-          {timeline.map((event) => (
-            <button
-              key={`${event.start}-${event.original}`}
-              type="button"
-              className={
-                position >= event.start
-                && position < event.end
-                  ? "timeline-chord timeline-chord-active"
-                  : "timeline-chord"
-              }
-              style={{
-                width: `${
-                  (
-                    (
-                      event.end
-                      - event.start
-                    )
-                    / duration
-                  )
-                  * 100
-                }%`,
-              }}
-              onClick={() => {
-                setPosition(event.start);
-              }}
-            >
-              <strong>
-                {event.suggestion
-                  ?? event.original}
-              </strong>
+          {chordEvents.map(
+            (event) => {
+              const isActive =
+                currentChord.id
+                === event.id;
 
-              <small>
-                {formatTime(event.start)}
-              </small>
-            </button>
-          ))}
+              return (
+                <button
+                  key={event.id}
+                  type="button"
+                  className={
+                    isActive
+                      ? (
+                        "timeline-chord "
+                        + "timeline-chord-active"
+                      )
+                      : "timeline-chord"
+                  }
+                  style={{
+                    width: `${
+                      (
+                        (
+                          event.end
+                          - event.start
+                        )
+                        / duration
+                      )
+                      * 100
+                    }%`,
+                  }}
+                  onClick={() => {
+                    setPosition(
+                      event.start,
+                    );
+                  }}
+                >
+                  <strong>
+                    {event.chord}
+                  </strong>
+
+                  <small>
+                    {formatTime(
+                      event.start,
+                    )}
+                  </small>
+                </button>
+              );
+            },
+          )}
         </div>
       </section>
     </section>
