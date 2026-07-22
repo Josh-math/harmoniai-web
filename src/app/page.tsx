@@ -1,28 +1,51 @@
 "use client";
 
-import { useState } from "react";
-import TechniqueLab from "./components/technique-lab";
-import AnalyzeSong from "./components/analyze-song";
-import PerformanceMode from "./components/performance-mode";
+import {
+  useState,
+} from "react";
 
-const navigationItems = [
+import AnalyzeSong from "./components/analyze-song";
+import Dashboard from "./components/dashboard";
+import PerformanceMode from "./components/performance-mode";
+import TechniqueLab from "./components/technique-lab";
+
+import type {
+  AppScreen,
+} from "./types/app-navigation";
+
+import {
+  screenTitles,
+} from "./types/app-navigation";
+
+type NavigationItem = {
+  screen: AppScreen;
+  label: string;
+  icon: string;
+};
+
+const navigationItems: NavigationItem[] = [
   {
+    screen: "dashboard",
     label: "Dashboard",
     icon: "⌂",
   },
   {
+    screen: "analyze",
     label: "Analyze",
     icon: "♫",
   },
   {
+    screen: "performance",
     label: "Performance",
     icon: "▶",
   },
   {
+    screen: "technique-lab",
     label: "Technique Lab",
     icon: "♬",
   },
   {
+    screen: "library",
     label: "Library",
     icon: "▣",
   },
@@ -30,14 +53,170 @@ const navigationItems = [
 
 export default function Home() {
   const [
-    activePage,
-    setActivePage,
-  ] = useState("Dashboard");
+    activeScreen,
+    setActiveScreen,
+  ] = useState<AppScreen>(
+    "dashboard",
+  );
+
+  const [
+    previousScreen,
+    setPreviousScreen,
+  ] = useState<AppScreen>(
+    "dashboard",
+  );
 
   const [
     isPremium,
     setIsPremium,
   ] = useState(false);
+
+  function goTo(
+    screen: AppScreen,
+  ) {
+    setPreviousScreen(activeScreen);
+    setActiveScreen(screen);
+  }
+
+  function goBack() {
+    setActiveScreen(previousScreen);
+  }
+
+  function renderScreen() {
+    if (
+      activeScreen === "analyze"
+    ) {
+      return (
+        <AnalyzeSong
+          onBack={() => {
+            goTo("dashboard");
+          }}
+          onOpenPerformance={() => {
+            goTo("performance");
+          }}
+        />
+      );
+    }
+
+    if (
+      activeScreen === "performance"
+    ) {
+      return (
+        <PerformanceMode
+          onBack={goBack}
+          onAnalyzeAnother={() => {
+            goTo("analyze");
+          }}
+        />
+      );
+    }
+
+    if (
+      activeScreen
+      === "technique-lab"
+    ) {
+      return (
+        <TechniqueLab
+          onBack={() => {
+            goTo("dashboard");
+          }}
+          onOpenPerformance={() => {
+            goTo("performance");
+          }}
+        />
+      );
+    }
+
+    if (
+      activeScreen === "library"
+    ) {
+      return (
+        <section className="empty-state">
+          <span>▣</span>
+
+          <h3>Your library</h3>
+
+          <p>
+            Saved songs, sessions,
+            techniques, and performance
+            paths will appear here.
+          </p>
+
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => {
+              goTo("analyze");
+            }}
+          >
+            Analyze your first song
+          </button>
+        </section>
+      );
+    }
+
+    if (
+      activeScreen === "profile"
+    ) {
+      return (
+        <section className="empty-state">
+          <span>J</span>
+
+          <h3>Musician profile</h3>
+
+          <p>
+            Your instrument, skill level,
+            style, and musical preferences
+            will be managed here.
+          </p>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              goTo("dashboard");
+            }}
+          >
+            Back to dashboard
+          </button>
+        </section>
+      );
+    }
+
+    if (
+      activeScreen
+      === "reharmonization"
+    ) {
+      return (
+        <section className="empty-state">
+          <span>✦</span>
+
+          <h3>
+            Reharmonization Studio
+          </h3>
+
+          <p>
+            Personalized harmonic paths
+            will be built here next.
+          </p>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              goTo("dashboard");
+            }}
+          >
+            Back to dashboard
+          </button>
+        </section>
+      );
+    }
+
+    return (
+      <Dashboard goTo={goTo} />
+    );
+  }
 
   return (
     <main
@@ -73,12 +252,12 @@ export default function Home() {
           {navigationItems.map(
             (item) => {
               const isActive =
-                activePage
-                === item.label;
+                activeScreen
+                === item.screen;
 
               return (
                 <button
-                  key={item.label}
+                  key={item.screen}
                   type="button"
                   className={
                     isActive
@@ -89,8 +268,8 @@ export default function Home() {
                       : "navigation-item"
                   }
                   onClick={() => {
-                    setActivePage(
-                      item.label,
+                    goTo(
+                      item.screen,
                     );
                   }}
                 >
@@ -132,14 +311,8 @@ export default function Home() {
 
               <small>
                 {isPremium
-                  ? (
-                    "VVIP experience "
-                    + "active"
-                  )
-                  : (
-                    "Preview premium "
-                    + "mode"
-                  )}
+                  ? "VVIP experience active"
+                  : "Preview premium mode"}
               </small>
             </span>
 
@@ -163,9 +336,7 @@ export default function Home() {
             type="button"
             className="profile-card"
             onClick={() => {
-              setActivePage(
-                "Profile",
-              );
+              goTo("profile");
             }}
           >
             <span className="avatar">
@@ -177,11 +348,7 @@ export default function Home() {
               <small>Keyboardist</small>
             </span>
 
-            <span
-              className={
-                "profile-arrow"
-              }
-            >
+            <span className="profile-arrow">
               ›
             </span>
           </button>
@@ -195,12 +362,16 @@ export default function Home() {
               YOUR MUSICAL WORKSPACE
             </p>
 
-            <h1>{activePage}</h1>
+            <h1>
+              {
+                screenTitles[
+                  activeScreen
+                ]
+              }
+            </h1>
           </div>
 
-          <div
-            className="topbar-actions"
-          >
+          <div className="topbar-actions">
             <button
               type="button"
               className={
@@ -218,9 +389,7 @@ export default function Home() {
               type="button"
               className="primary-button"
               onClick={() => {
-                setActivePage(
-                  "Analyze",
-                );
+                goTo("analyze");
               }}
             >
               <span>＋</span>
@@ -230,491 +399,7 @@ export default function Home() {
         </header>
 
         <div className="content">
-          {activePage === "Analyze" ? (
-            <AnalyzeSong
-              onBack={() => {
-                setActivePage(
-                  "Dashboard",
-                );
-              }}
-              onOpenPerformance={() => {
-                setActivePage(
-                  "Performance",
-                );
-              }}
-            />
-          ) : activePage === "Performance" ? (
-            <PerformanceMode
-              onBack={() => {
-                setActivePage("Analyze");
-              }}
-              onAnalyzeAnother={() => {
-                setActivePage("Analyze");
-              }}
-            />
-          ) : activePage === "Technique Lab" ? (
-            <TechniqueLab
-              onBack={() => {
-                setActivePage("Dashboard");
-              }}
-              onOpenPerformance={() => {
-                setActivePage("Performance");
-              }}
-            />
-          ) : (
-              <>
-                <section
-                  className="hero-card"
-                >
-                  <div
-                    className="hero-copy"
-                  >
-                    <span
-                      className={
-                        "status-pill"
-                      }
-                    >
-                      <span
-                        className={
-                          "status-dot"
-                        }
-                      />
-
-                      Harmivo is ready
-                    </span>
-
-                    <h2>
-                      Hear the music.
-                      <br />
-                      Play it your way.
-                    </h2>
-
-                    <p>
-                      Analyze a song,
-                      follow live musical
-                      guidance and receive
-                      personalized harmonic
-                      ideas shaped around
-                      your instrument,
-                      skill and musical
-                      style.
-                    </p>
-
-                    <div
-                      className={
-                        "hero-actions"
-                      }
-                    >
-                      <button
-                        type="button"
-                        className={
-                          "primary-button "
-                          + "large-button"
-                        }
-                        onClick={() => {
-                          setActivePage(
-                            "Analyze",
-                          );
-                        }}
-                      >
-                        Upload your first
-                        song
-                      </button>
-
-                      <button
-                        type="button"
-                        className={
-                          "secondary-button "
-                          + "large-button"
-                        }
-                        onClick={() => {
-                          setActivePage(
-                            "Performance",
-                          );
-                        }}
-                      >
-                        Open performance
-                        mode
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    className="live-preview"
-                    aria-label={
-                      "Live performance preview"
-                    }
-                  >
-                    <div
-                      className={
-                        "preview-header"
-                      }
-                    >
-                      <span>
-                        LIVE PREVIEW
-                      </span>
-
-                      <span
-                        className={
-                          "live-indicator"
-                        }
-                      >
-                        Playing
-                      </span>
-                    </div>
-
-                    <div
-                      className={
-                        "current-chord"
-                      }
-                    >
-                      <small>NOW</small>
-
-                      <strong>
-                        Fmaj9
-                      </strong>
-
-                      <span>
-                        Suggested harmony
-                      </span>
-                    </div>
-
-                    <div
-                      className="journey"
-                    >
-                      <div
-                        className={
-                          "journey-step"
-                        }
-                      >
-                        <span
-                          className={
-                            "journey-label"
-                          }
-                        >
-                          PASSING
-                        </span>
-
-                        <strong>
-                          Gm9
-                        </strong>
-                      </div>
-
-                      <div
-                        className={
-                          "journey-line"
-                        }
-                      >
-                        <span />
-                      </div>
-
-                      <div
-                        className={
-                          "journey-step"
-                        }
-                      >
-                        <span
-                          className={
-                            "journey-label"
-                          }
-                        >
-                          TARGET
-                        </span>
-
-                        <strong>
-                          B♭maj9
-                        </strong>
-                      </div>
-                    </div>
-
-                    <div
-                      className="countdown"
-                    >
-                      <span>
-                        Next change
-                      </span>
-
-                      <strong>1.3s</strong>
-                    </div>
-                  </div>
-                </section>
-
-                <section
-                  className="quick-grid"
-                >
-                  <article
-                    className={
-                      "feature-card "
-                      + "analyze-card"
-                    }
-                  >
-                    <span
-                      className="card-icon"
-                    >
-                      ♫
-                    </span>
-
-                    <div>
-                      <p
-                        className={
-                          "card-kicker"
-                        }
-                      >
-                        START HERE
-                      </p>
-
-                      <h3>
-                        Analyze a song
-                      </h3>
-
-                      <p>
-                        Upload audio and
-                        let Harmivo build
-                        its chord, phrase,
-                        and tonal journey.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActivePage(
-                          "Analyze",
-                        );
-                      }}
-                    >
-                      Upload audio
-                      <span>→</span>
-                    </button>
-                  </article>
-
-                  <article
-                    className={
-                      "feature-card "
-                      + "performance-card"
-                    }
-                  >
-                    <span
-                      className="card-icon"
-                    >
-                      ▶
-                    </span>
-
-                    <div>
-                      <p
-                        className={
-                          "card-kicker"
-                        }
-                      >
-                        PLAY LIVE
-                      </p>
-
-                      <h3>
-                        Performance mode
-                      </h3>
-
-                      <p>
-                        Follow live chord
-                        guidance, passing
-                        movements, and
-                        upcoming
-                        modulations.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActivePage(
-                          "Performance",
-                        );
-                      }}
-                    >
-                      Open player
-                      <span>→</span>
-                    </button>
-                  </article>
-
-                  <article
-                    className={
-                      "feature-card "
-                      + "technique-card"
-                    }
-                  >
-                    <span
-                      className="card-icon"
-                    >
-                      ♬
-                    </span>
-
-                    <div>
-                      <p
-                        className={
-                          "card-kicker"
-                        }
-                      >
-                        KEEP GROWING
-                      </p>
-
-                      <h3>
-                        Technique Lab
-                      </h3>
-
-                      <p>
-                        Learn new keyboard
-                        and guitar concepts
-                        tailored to your
-                        level and style.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActivePage(
-                          "Technique Lab",
-                        );
-                      }}
-                    >
-                      Explore techniques
-                      <span>→</span>
-                    </button>
-                  </article>
-                </section>
-
-                <section
-                  className="bottom-grid"
-                >
-                  <article
-                    className="panel"
-                  >
-                    <div
-                      className={
-                        "panel-heading"
-                      }
-                    >
-                      <div>
-                        <p
-                          className={
-                            "card-kicker"
-                          }
-                        >
-                          YOUR JOURNEY
-                        </p>
-
-                        <h3>
-                          Recent sessions
-                        </h3>
-                      </div>
-
-                      <button
-                        type="button"
-                        className={
-                          "text-button"
-                        }
-                        onClick={() => {
-                          setActivePage(
-                            "Library",
-                          );
-                        }}
-                      >
-                        View library
-                      </button>
-                    </div>
-
-                    <div
-                      className={
-                        "empty-state"
-                      }
-                    >
-                      <span>♫</span>
-
-                      <h4>
-                        No sessions yet
-                      </h4>
-
-                      <p>
-                        Songs you analyze
-                        will appear here for
-                        quick access.
-                      </p>
-                    </div>
-                  </article>
-
-                  <article
-                    className={
-                      "panel "
-                      + "daily-technique"
-                    }
-                  >
-                    <div
-                      className={
-                        "panel-heading"
-                      }
-                    >
-                      <div>
-                        <p
-                          className={
-                            "card-kicker"
-                          }
-                        >
-                          DAILY TECHNIQUE
-                        </p>
-
-                        <h3>
-                          Gospel ii–V–I
-                          fill
-                        </h3>
-                      </div>
-
-                      <span
-                        className={
-                          "level-pill"
-                        }
-                      >
-                        Intermediate
-                      </span>
-                    </div>
-
-                    <div
-                      className={
-                        "technique-path"
-                      }
-                    >
-                      <strong>Gm9</strong>
-                      <span>→</span>
-                      <strong>C13</strong>
-                      <span>→</span>
-                      <strong>
-                        Fmaj9
-                      </strong>
-                    </div>
-
-                    <p>
-                      Build smoother
-                      resolutions using a
-                      rich
-                      predominant–dominant–
-                      tonic movement.
-                    </p>
-
-                    <button
-                      type="button"
-                      className={
-                        "secondary-button"
-                      }
-                      onClick={() => {
-                        setActivePage(
-                          "Technique Lab",
-                        );
-                      }}
-                    >
-                      Practise technique
-                    </button>
-                  </article>
-                </section>
-              </>
-            )}
+          {renderScreen()}
         </div>
       </section>
     </main>
