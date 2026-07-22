@@ -3688,3 +3688,46 @@ button:focus-visible {
     text-align: center;
   }
 }
+
+.dashboard-session-preview {
+  min-height: 150px;
+  margin-top: 18px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-muted);
+}
+
+.dashboard-session-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  font-size: 21px;
+}
+
+.dashboard-session-preview > div:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.dashboard-session-preview strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-session-preview small {
+  color: var(--muted);
+}

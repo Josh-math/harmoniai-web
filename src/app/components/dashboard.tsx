@@ -3,6 +3,9 @@
 import type {
   AppScreen,
 } from "../types/app-navigation";
+import {
+  useHarmivo,
+} from "../context/harmivo-context";
 
 type DashboardProps = {
   goTo: (screen: AppScreen) => void;
@@ -11,6 +14,10 @@ type DashboardProps = {
 export default function Dashboard({
   goTo,
 }: DashboardProps) {
+  const {
+    songs,
+    musicianProfile,
+  } = useHarmivo();    
   return (
     <>
       <section className="hero-card">
@@ -238,15 +245,43 @@ export default function Dashboard({
             </button>
           </div>
 
-          <div className="empty-state">
-            <span>♫</span>
+          <div className="dashboard-session-preview">
+            <div className="dashboard-session-icon">
+              ♫
+            </div>
 
-            <h4>No sessions yet</h4>
+            <div>
+              <strong>
+                {songs[0]?.metadata.title
+                  ?? "No sessions yet"}
+              </strong>
 
-            <p>
-              Songs you analyze will appear
-              here for quick access.
-            </p>
+              <small>
+                {songs.length > 0
+                  ? (
+                    `${songs.length} saved `
+                    + (
+                      songs.length === 1
+                        ? "session"
+                        : "sessions"
+                    )
+                  )
+                  : (
+                    "Songs you analyze "
+                    + "will appear here."
+                  )}
+              </small>
+            </div>
+
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                goTo("library");
+              }}
+            >
+              Open
+            </button>
           </div>
         </article>
 

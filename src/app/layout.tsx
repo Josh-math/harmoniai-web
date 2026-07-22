@@ -1,10 +1,17 @@
-import type { Metadata } from "next";
+import type {
+  Metadata,
+} from "next";
+
 import "./globals.css";
+
+import {
+  HarmivoProvider,
+} from "./context/harmivo-context";
 
 export const metadata: Metadata = {
   title: "Harmivo",
   description:
-    "Your intelligent companion for music analysis, performance and growth.",
+    "Your intelligent companion for music analysis, performance, and growth.",
 };
 
 export default function RootLayout({
@@ -14,7 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <HarmivoProvider>
+          {children}
+        </HarmivoProvider>
+      </body>
     </html>
   );
 }
