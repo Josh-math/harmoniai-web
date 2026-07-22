@@ -8,6 +8,7 @@ import AnalyzeSong from "./components/analyze-song";
 import Dashboard from "./components/dashboard";
 import PerformanceMode from "./components/performance-mode";
 import TechniqueLab from "./components/technique-lab";
+import ReharmonizationStudio from "./components/reharmonization-studio";
 
 import type {
   AppScreen,
@@ -43,6 +44,11 @@ const navigationItems: NavigationItem[] = [
     screen: "technique-lab",
     label: "Technique Lab",
     icon: "♬",
+  },
+  {
+    screen: "reharmonization",
+    label: "Reharmonize",
+    icon: "✦",
   },
   {
     screen: "library",
@@ -188,28 +194,14 @@ export default function Home() {
       === "reharmonization"
     ) {
       return (
-        <section className="empty-state">
-          <span>✦</span>
-
-          <h3>
-            Reharmonization Studio
-          </h3>
-
-          <p>
-            Personalized harmonic paths
-            will be built here next.
-          </p>
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => {
-              goTo("dashboard");
-            }}
-          >
-            Back to dashboard
-          </button>
-        </section>
+        <ReharmonizationStudio
+          onBack={() => {
+            goTo("dashboard");
+          }}
+          onOpenPerformance={() => {
+            goTo("performance");
+          }}
+        />
       );
     }
 
