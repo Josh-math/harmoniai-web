@@ -10,6 +10,10 @@ import PerformanceMode from "./components/performance-mode";
 import TechniqueLab from "./components/technique-lab";
 import ReharmonizationStudio from "./components/reharmonization-studio";
 import Library from "./components/library";
+import MusicianProfile from "./components/musician-profile";
+import {
+  useHarmivo,
+} from "./context/harmivo-context";
 
 import type {
   AppScreen,
@@ -66,12 +70,14 @@ export default function Home() {
     "dashboard",
   );
 
+  const {
+    musicianProfile,
+  } = useHarmivo();
+
   const [
-    previousScreen,
-    setPreviousScreen,
-  ] = useState<AppScreen>(
-    "dashboard",
-  );
+    navigationHistory,
+    setNavigationHistory,
+  ] = useState<AppScreen[]>([]);
 
   const [
     isPremium,
@@ -80,13 +86,49 @@ export default function Home() {
 
   function goTo(
     screen: AppScreen,
-  ) {
-    setPreviousScreen(activeScreen);
-    setActiveScreen(screen);
-  }
+    ) {
+      if (screen === activeScreen) {
+        return;
+      }
+
+      setNavigationHistory(
+        (currentHistory) => [
+          ...currentHistory,
+          activeScreen,
+        ],
+      );
+
+      setActiveScreen(screen);
+    }
 
   function goBack() {
-    setActiveScreen(previousScreen);
+    setNavigationHistory(
+      (currentHistory) => {
+        if (
+          currentHistory.length === 0
+        ) {
+          setActiveScreen(
+            "dashboard",
+          );
+
+          return [];
+        }
+
+        const previousScreen =
+          currentHistory[
+            currentHistory.length - 1
+          ];
+
+        setActiveScreen(
+          previousScreen,
+        );
+
+        return currentHistory.slice(
+          0,
+          -1,
+        );
+      },
+    );
   }
 
   function renderScreen() {
@@ -146,27 +188,9 @@ export default function Home() {
       activeScreen === "profile"
     ) {
       return (
-        <section className="empty-state">
-          <span>J</span>
-
-          <h3>Musician profile</h3>
-
-          <p>
-            Your instrument, skill level,
-            style, and musical preferences
-            will be managed here.
-          </p>
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => {
-              goTo("dashboard");
-            }}
-          >
-            Back to dashboard
-          </button>
-        </section>
+        <MusicianProfile
+          onBack={goBack}
+        />
       );
     }
 
@@ -318,7 +342,9 @@ export default function Home() {
 
             <span>
               <strong>Joseph</strong>
-              <small>Keyboardist</small>
+              <small>
+                {musicianProfile.instrument}
+              </small>
             </span>
 
             <span className="profile-arrow">
@@ -330,18 +356,31 @@ export default function Home() {
 
       <section className="workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">
-              YOUR MUSICAL WORKSPACE
-            </p>
+          <div className="topbar-title-area">
+            {(
+              activeScreen !== "dashboard"
+              || navigationHistory.length > 0
+            ) && (
+              <button
+                type="button"
+                className="global-back-button"
+                onClick={goBack}
+                aria-label="Go back to previous page"
+                title="Go back"
+              >
+                ←
+              </button>
+            )}
 
-            <h1>
-              {
-                screenTitles[
-                  activeScreen
-                ]
-              }
-            </h1>
+            <div>
+              <p className="eyebrow">
+                YOUR MUSICAL WORKSPACE
+              </p>
+
+              <h1>
+                {screenTitles[activeScreen]}
+              </h1>
+            </div>
           </div>
 
           <div className="topbar-actions">
