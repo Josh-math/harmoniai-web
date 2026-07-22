@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import AnalysisResult from "./analysis-result";
+import InteractiveAnalysis from "./interactive-analysis";
 
 type AnalyzeSongProps = {
   onBack: () => void;
@@ -43,13 +44,16 @@ export default function AnalyzeSong({
   onBack,
   onOpenPerformance,
 }: AnalyzeSongProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef =
+    useRef<HTMLInputElement>(null);
 
   const [selectedFile, setSelectedFile] =
     useState<File | null>(null);
 
-  const [audioPreviewUrl, setAudioPreviewUrl] =
-    useState<string | null>(null);
+  const [
+    audioPreviewUrl,
+    setAudioPreviewUrl,
+  ] = useState<string | null>(null);
 
   const [isDragging, setIsDragging] =
     useState(false);
@@ -66,11 +70,18 @@ export default function AnalyzeSong({
   const [isAnalyzing, setIsAnalyzing] =
     useState(false);
 
-  const [analysisStage, setAnalysisStage] =
-    useState(0);
+  const [
+    analysisStage,
+    setAnalysisStage,
+  ] = useState(0);
 
   const [isComplete, setIsComplete] =
     useState(false);
+
+  const [
+    isViewingAnalysis,
+    setIsViewingAnalysis,
+  ] = useState(false);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -97,11 +108,16 @@ export default function AnalyzeSong({
       file.name.toLowerCase();
 
     const hasSupportedType =
-      supportedAudioTypes.includes(file.type);
+      supportedAudioTypes.includes(
+        file.type,
+      );
 
     const hasSupportedExtension =
-      supportedExtensions.some((extension) =>
-        normalizedFileName.endsWith(extension),
+      supportedExtensions.some(
+        (extension) =>
+          normalizedFileName.endsWith(
+            extension,
+          ),
       );
 
     if (
@@ -118,18 +134,22 @@ export default function AnalyzeSong({
     setSelectedFile(file);
     setAnalysisStage(0);
     setIsComplete(false);
+    setIsViewingAnalysis(false);
   }
 
   function handleInputChange(
     event: ChangeEvent<HTMLInputElement>,
   ) {
-    chooseFile(event.target.files?.[0]);
+    chooseFile(
+      event.target.files?.[0],
+    );
   }
 
   function handleDrop(
     event: DragEvent<HTMLDivElement>,
   ) {
     event.preventDefault();
+
     setIsDragging(false);
 
     chooseFile(
@@ -163,6 +183,12 @@ export default function AnalyzeSong({
     setIsDragging(false);
   }
 
+  function resetFileInput() {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
   function removeSelectedFile() {
     if (isAnalyzing) {
       return;
@@ -171,24 +197,24 @@ export default function AnalyzeSong({
     setSelectedFile(null);
     setAnalysisStage(0);
     setIsComplete(false);
+    setIsViewingAnalysis(false);
 
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    resetFileInput();
   }
 
   function analyzeAnotherSong() {
     setIsComplete(false);
     setIsAnalyzing(false);
+    setIsViewingAnalysis(false);
     setSelectedFile(null);
     setAnalysisStage(0);
 
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    resetFileInput();
   }
 
-  function formatFileSize(bytes: number) {
+  function formatFileSize(
+    bytes: number,
+  ) {
     const megabytes =
       bytes / (1024 * 1024);
 
@@ -198,12 +224,14 @@ export default function AnalyzeSong({
   async function wait(
     milliseconds: number,
   ) {
-    await new Promise<void>((resolve) => {
-      window.setTimeout(
-        resolve,
-        milliseconds,
-      );
-    });
+    await new Promise<void>(
+      (resolve) => {
+        window.setTimeout(
+          resolve,
+          milliseconds,
+        );
+      },
+    );
   }
 
   async function startAnalysis() {
@@ -215,6 +243,7 @@ export default function AnalyzeSong({
     }
 
     setIsComplete(false);
+    setIsViewingAnalysis(false);
     setIsAnalyzing(true);
     setAnalysisStage(0);
 
@@ -232,12 +261,39 @@ export default function AnalyzeSong({
     setIsComplete(true);
   }
 
-  if (isComplete && selectedFile) {
+  if (
+    isViewingAnalysis
+    && selectedFile
+  ) {
+    return (
+      <InteractiveAnalysis
+        fileName={selectedFile.name}
+        onBack={() => {
+          setIsViewingAnalysis(false);
+        }}
+        onOpenPerformance={
+          onOpenPerformance
+        }
+      />
+    );
+  }
+
+  if (
+    isComplete
+    && selectedFile
+  ) {
     return (
       <AnalysisResult
         fileName={selectedFile.name}
-        onAnalyzeAnother={analyzeAnotherSong}
-        onOpenPerformance={onOpenPerformance}
+        onAnalyzeAnother={
+          analyzeAnotherSong
+        }
+        onOpenAnalysis={() => {
+          setIsViewingAnalysis(true);
+        }}
+        onOpenPerformance={
+          onOpenPerformance
+        }
       />
     );
   }
@@ -273,7 +329,10 @@ export default function AnalyzeSong({
           <div
             className={
               isDragging
-                ? "upload-zone upload-zone-dragging"
+                ? (
+                  "upload-zone "
+                  + "upload-zone-dragging"
+                )
                 : "upload-zone"
             }
             onDragEnter={handleDragEnter}
@@ -286,7 +345,9 @@ export default function AnalyzeSong({
             <input
               ref={inputRef}
               type="file"
-              accept=".mp3,.wav,.m4a,audio/*"
+              accept={
+                ".mp3,.wav,.m4a,audio/*"
+              }
               hidden
               disabled={isAnalyzing}
               onChange={handleInputChange}
@@ -298,9 +359,13 @@ export default function AnalyzeSong({
                   ♫
                 </span>
 
-                <h3>Drop your song here</h3>
+                <h3>
+                  Drop your song here
+                </h3>
 
-                <p>MP3, WAV, or M4A</p>
+                <p>
+                  MP3, WAV, or M4A
+                </p>
 
                 <button
                   type="button"
@@ -315,7 +380,11 @@ export default function AnalyzeSong({
               </>
             ) : (
               <div className="selected-file">
-                <span className="selected-file-icon">
+                <span
+                  className={
+                    "selected-file-icon"
+                  }
+                >
                   ♪
                 </span>
 
@@ -334,7 +403,9 @@ export default function AnalyzeSong({
                 <button
                   type="button"
                   disabled={isAnalyzing}
-                  onClick={removeSelectedFile}
+                  onClick={
+                    removeSelectedFile
+                  }
                 >
                   Remove
                 </button>
@@ -349,13 +420,15 @@ export default function AnalyzeSong({
                 controls
                 src={audioPreviewUrl}
               >
-                Your browser does not support
-                audio playback.
+                Your browser does not
+                support audio playback.
               </audio>
             )}
         </section>
 
-        <aside className="analysis-settings">
+        <aside
+          className="analysis-settings"
+        >
           <div>
             <p className="card-kicker">
               YOUR PROFILE
@@ -364,10 +437,10 @@ export default function AnalyzeSong({
             <h3>Shape your results</h3>
 
             <p>
-              Harmivo uses these choices to
-              personalize its musical
-              suggestions, not the objective
-              song analysis.
+              Harmivo uses these choices
+              to personalize its musical
+              suggestions, not the
+              objective song analysis.
             </p>
           </div>
 
@@ -401,9 +474,13 @@ export default function AnalyzeSong({
               }}
             >
               <option>Beginner</option>
-              <option>Intermediate</option>
+              <option>
+                Intermediate
+              </option>
               <option>Advanced</option>
-              <option>Professional</option>
+              <option>
+                Professional
+              </option>
             </select>
           </label>
 
@@ -429,9 +506,21 @@ export default function AnalyzeSong({
           </label>
 
           {isAnalyzing && (
-            <section className="analysis-progress">
-              <div className="analysis-progress-heading">
-                <span className="analysis-spinner" />
+            <section
+              className={
+                "analysis-progress"
+              }
+            >
+              <div
+                className={
+                  "analysis-progress-heading"
+                }
+              >
+                <span
+                  className={
+                    "analysis-spinner"
+                  }
+                />
 
                 <div>
                   <strong>
@@ -448,13 +537,18 @@ export default function AnalyzeSong({
                 </div>
               </div>
 
-              <div className="analysis-progress-track">
+              <div
+                className={
+                  "analysis-progress-track"
+                }
+              >
                 <span
                   style={{
                     width: `${
                       (
                         (
-                          analysisStage + 1
+                          analysisStage
+                          + 1
                         )
                         / analysisStages.length
                       )
@@ -464,32 +558,50 @@ export default function AnalyzeSong({
                 />
               </div>
 
-              <div className="analysis-stage-list">
+              <div
+                className={
+                  "analysis-stage-list"
+                }
+              >
                 {analysisStages.map(
                   (stage, index) => {
-                    const isStageComplete =
-                      index
-                      < analysisStage;
+                    const
+                      isStageComplete =
+                        index
+                        < analysisStage;
 
-                    const isStageActive =
-                      index
-                      === analysisStage;
+                    const
+                      isStageActive =
+                        index
+                        === analysisStage;
 
                     let className =
                       "analysis-stage";
 
-                    if (isStageComplete) {
+                    if (
+                      isStageComplete
+                    ) {
                       className +=
-                        " analysis-stage-complete";
-                    } else if (isStageActive) {
+                        (
+                          " "
+                          + "analysis-stage-complete"
+                        );
+                    } else if (
+                      isStageActive
+                    ) {
                       className +=
-                        " analysis-stage-active";
+                        (
+                          " "
+                          + "analysis-stage-active"
+                        );
                     }
 
                     return (
                       <div
                         key={stage}
-                        className={className}
+                        className={
+                          className
+                        }
                       >
                         <span>
                           {isStageComplete
@@ -510,7 +622,10 @@ export default function AnalyzeSong({
 
           <button
             type="button"
-            className="primary-button analyze-submit"
+            className={
+              "primary-button "
+              + "analyze-submit"
+            }
             disabled={
               !selectedFile
               || isAnalyzing
@@ -523,7 +638,9 @@ export default function AnalyzeSong({
           </button>
 
           {!selectedFile && (
-            <small className="upload-hint">
+            <small
+              className="upload-hint"
+            >
               Select an audio file to
               continue.
             </small>
