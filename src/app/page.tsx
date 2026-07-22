@@ -9,6 +9,7 @@ import Dashboard from "./components/dashboard";
 import PerformanceMode from "./components/performance-mode";
 import TechniqueLab from "./components/technique-lab";
 import ReharmonizationStudio from "./components/reharmonization-studio";
+import Library from "./components/library";
 
 import type {
   AppScreen,
@@ -137,29 +138,9 @@ export default function Home() {
       activeScreen === "library"
     ) {
       return (
-        <section className="empty-state">
-          <span>▣</span>
-
-          <h3>Your library</h3>
-
-          <p>
-            Saved songs, sessions,
-            techniques, and performance
-            paths will appear here.
-          </p>
-
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => {
-              goTo("analyze");
-            }}
-          >
-            Analyze your first song
-          </button>
-        </section>
-      );
-    }
+      <Library goTo={goTo} />
+    );
+  }
 
     if (
       activeScreen === "profile"

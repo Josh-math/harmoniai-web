@@ -3731,3 +3731,349 @@ button:focus-visible {
 .dashboard-session-preview small {
   color: var(--muted);
 }
+
+.library-page {
+  animation: page-enter 300ms ease;
+}
+
+.library-heading,
+.library-controls,
+.library-song-top,
+.library-song-actions,
+.library-song-secondary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.library-heading {
+  margin-bottom: 34px;
+  gap: 24px;
+}
+
+.library-heading h2 {
+  margin: 9px 0 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 5vw, 66px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+.library-heading p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.library-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.library-summary-card {
+  min-height: 145px;
+  padding: 21px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 21px;
+  background: var(--surface);
+}
+
+.library-summary-card small {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.library-summary-card strong {
+  margin: 11px 0 5px;
+  font-family: Georgia, serif;
+  font-size: 35px;
+  font-weight: 500;
+}
+
+.library-summary-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.library-summary-primary {
+  color: white;
+  background: var(--accent-dark);
+}
+
+.library-summary-primary small,
+.library-summary-primary span {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.library-controls {
+  margin-top: 20px;
+  padding: 15px;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  background: var(--surface);
+}
+
+.library-filter-row {
+  display: flex;
+  gap: 7px;
+}
+
+.library-filter {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.library-filter-active {
+  color: white;
+  background: var(--accent-dark);
+}
+
+.library-search input {
+  width: min(280px, 100%);
+  min-height: 43px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  color: var(--text);
+  background: var(--surface-solid);
+}
+
+.library-song-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.library-song-card {
+  padding: 23px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.library-song-card-active {
+  border-color: var(--accent);
+}
+
+.library-song-icon {
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: white;
+  background: var(--accent-dark);
+  font-size: 21px;
+}
+
+.library-favorite-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  color: var(--muted);
+  background: var(--surface-solid);
+  cursor: pointer;
+  font-size: 21px;
+}
+
+.library-favorite-button-active {
+  color: #9a7415;
+  background: rgba(240, 217, 142, 0.45);
+}
+
+.library-song-title {
+  margin-top: 21px;
+}
+
+.library-song-title h3 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.library-song-title p {
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-song-meta {
+  margin-top: 13px;
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.library-song-meta span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+}
+
+.library-song-data {
+  margin-top: 19px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.library-song-data article {
+  min-height: 85px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 15px;
+  background: var(--surface-muted);
+}
+
+.library-song-data small {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.library-song-data strong {
+  margin-top: 8px;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.library-song-actions {
+  margin-top: 20px;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.library-song-secondary-actions {
+  margin-top: 15px;
+  padding-top: 13px;
+  justify-content: flex-start;
+  gap: 13px;
+  border-top: 1px solid var(--border);
+}
+
+.library-delete-button {
+  margin-left: auto;
+  border: 0;
+  color: #9c4c4c;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.library-empty-state {
+  min-height: 390px;
+  margin-top: 20px;
+  padding: 35px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.library-empty-state > span {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 19px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  font-size: 25px;
+}
+
+.library-empty-state h3 {
+  margin: 20px 0 8px;
+  font-family: Georgia, serif;
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.library-empty-state p {
+  max-width: 470px;
+  margin: 0 0 22px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1050px) {
+  .library-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .library-song-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .library-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .library-search input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .library-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .library-summary-grid,
+  .library-song-data {
+    grid-template-columns: 1fr;
+  }
+
+  .library-filter-row {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .library-song-actions {
+    display: grid;
+  }
+
+  .library-song-actions button {
+    width: 100%;
+  }
+
+  .library-song-secondary-actions {
+    flex-wrap: wrap;
+  }
+
+  .library-delete-button {
+    margin-left: 0;
+  }
+}
