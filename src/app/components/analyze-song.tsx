@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import AnalysisResult from "./analysis-result";
-import InteractiveAnalysis from "./interactive-analysis";
+import AnalysisWorkspace from "./analysis-workspace";
 
 type AnalyzeSongProps = {
   onBack: () => void;
@@ -266,7 +266,7 @@ export default function AnalyzeSong({
     && selectedFile
   ) {
     return (
-      <InteractiveAnalysis
+      <AnalysisWorkspace
         fileName={selectedFile.name}
         onBack={() => {
           setIsViewingAnalysis(false);
