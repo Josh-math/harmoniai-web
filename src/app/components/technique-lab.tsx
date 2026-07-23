@@ -5,7 +5,7 @@ import {
   useState,
 } from "react";
 
-import { mockSongIntelligence } from "../data/mock-song-intelligence";
+import { mockSongIntelligence } from "../mock";
 
 type TechniqueLabProps = {
   onBack: () => void;

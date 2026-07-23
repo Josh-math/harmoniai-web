@@ -1,6 +1,6 @@
 "use client";
 
-import { mockSongIntelligence } from "../data/mock-song-intelligence";
+import { mockSongIntelligence } from "../mock";
 
 type AnalysisResultProps = {
   fileName: string;
