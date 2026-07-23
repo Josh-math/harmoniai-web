@@ -273,7 +273,7 @@ export default function InteractiveAnalysis({
           className="back-button"
           onClick={onBack}
         >
-          ← Back to results
+          ← Back to analysis result
         </button>
 
         <button

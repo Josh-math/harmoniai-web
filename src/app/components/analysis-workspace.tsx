@@ -142,7 +142,7 @@ export default function AnalysisWorkspace({
               );
             }}
           >
-            Written Analysis
+            Musical Insights
           </button>
         </div>
 
@@ -180,11 +180,11 @@ export default function AnalysisWorkspace({
       <header className="written-analysis-heading">
         <div>
           <p className="card-kicker">
-            MUSICAL ANALYSIS
+            SONG INTELLIGENCE
           </p>
 
           <h2>
-            Your song at a glance
+            Understand your music
           </h2>
 
           <p>{fileName}</p>
@@ -207,7 +207,7 @@ export default function AnalysisWorkspace({
             type="button"
             className="analysis-workspace-tab analysis-workspace-tab-active"
           >
-            Written Analysis
+            Musical Insights
           </button>
         </div>
       </header>

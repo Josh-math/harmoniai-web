@@ -178,11 +178,12 @@ export default function AnalysisResult({
           </span>
 
           <div>
-            <strong>View analysis</strong>
+            <strong>Open Song Intelligence</strong>
 
             <small>
-              Explore the tonal journey,
-              chords, phrases, and sections.
+              Understand the song’s harmony,
+              tonal journey, structure, and
+              musical opportunities.
             </small>
           </div>
 
