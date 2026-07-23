@@ -8,6 +8,10 @@ import {
   HarmivoProvider,
 } from "./context/harmivo-context";
 
+import {
+  NavigationProvider,
+} from "./context/navigation-context";
+
 export const metadata: Metadata = {
   title: "Harmivo",
   description:
@@ -23,7 +27,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <HarmivoProvider>
-          {children}
+          <NavigationProvider>
+            {children}
+          </NavigationProvider>
         </HarmivoProvider>
       </body>
     </html>
